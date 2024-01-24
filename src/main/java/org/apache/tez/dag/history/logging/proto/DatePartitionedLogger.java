@@ -92,8 +92,8 @@ public class DatePartitionedLogger<T extends MessageLite> {
   /**
    * Creates a reader for the given filePath, no validation is done.
    */
-  public ProtoMessageReader<T> getReader() throws IOException {
-    return new ProtoMessageReader<>(conf, parser);
+  public ProtoMessageReader<T> getReader(Path filePath) throws IOException {
+    return new ProtoMessageReader<>(conf, filePath, parser);
   }
 
   /**

@@ -30,15 +30,30 @@ import com.google.protobuf.MessageLite;
 import com.google.protobuf.Parser;
 
 public class ProtoMessageReader<T extends MessageLite> implements Closeable {
+  private final Path filePath;
   private final Reader reader;
   private final ProtoMessageWritable<T> writable;
 
-  ProtoMessageReader(Configuration conf, Parser<T> parser) throws IOException {
+  public ProtoMessageReader(Configuration conf, Path filePath, Parser<T> parser) throws IOException {
+    this.filePath = filePath;
     // The writer does not flush the length during hflush. Using length options lets us read
     // past length in the FileStatus but it will throw EOFException during a read instead
     // of returning null.
-    this.reader = new Reader(conf, Reader.length(Long.MAX_VALUE));
+    this.reader = new Reader(conf, Reader.file(filePath), Reader.length(Long.MAX_VALUE));
     this.writable = new ProtoMessageWritable<>(parser);
+  }
+
+  public ProtoMessageReader(Configuration conf, Path filePath, Parser<T> parser, ProtoMessageWritable<T> writable) throws IOException {
+    this.filePath = filePath;
+    // The writer does not flush the length during hflush. Using length options lets us read
+    // past length in the FileStatus but it will throw EOFException during a read instead
+    // of returning null.
+    this.reader = new Reader(conf, Reader.file(filePath), Reader.length(Long.MAX_VALUE));
+    this.writable = writable;
+  }
+
+  public Path getFilePath() {
+    return filePath;
   }
 
   public void setOffset(long offset) throws IOException {
